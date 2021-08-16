@@ -1,17 +1,16 @@
 """
 IDEAS
-
 -Say something motivating
 -What should i eat for (breakfast/lunch/dinner)
 -Set a timer
 -Tell me a joke
--Google something
+-Google something----
 -Language translation
 -Check the weather
 -Greeting --------
 -Open youtube video
--Time
--Play music
+-Time-----
+-Play music------
 
 """
 
@@ -126,6 +125,24 @@ def playMusic(type):
 def sheesh():
     speak('sheeeeeesh')
 
+def getTime():
+    currentTime = datetime.datetime.now()
+    currentTime = currentTime.strftime("%H:%M:%S")
+    timeArray = currentTime.split(":")
+
+    hour = timeArray[0]
+    minute = timeArray[1]
+    meridiem = 'AM'
+    
+    #Check if it is AM or PM
+    if (int(hour)>12):
+        hour = int(hour)-12
+        meridiem = 'PM'
+    speak("It is "+ str(hour) +" : " + minute +" " + meridiem)
+    return
+
+
+
 
 speak(name +' here.')
 greeting()
@@ -189,6 +206,10 @@ if __name__ == '__main__':
             if 'sheesh' in query or 'can i get a' in query:
                 sheesh()
             
+            if 'time' in query:
+                getTime()
+            
+            #Tell Navi to stop listening and exit
             if 'stop listening' in query or 'nevermind' in query or 'that is all' in query or 'do the thing' in query:
                 speak("Goodbye")
                 sys.exit()
@@ -197,12 +218,12 @@ if __name__ == '__main__':
 
             if mixer.get_init() != None:
                 mixer.music.set_volume(0.30)
-        
+        """
         #Quit mixer if no song is playing        
         if mixer.get_init() != None:
-                print('Mixer is active')
-                print('Active Channels: '+str(mixer.get_num_channels()))
+                #print('Mixer is active')
+                #print('Active Channels: '+str(mixer.get_num_channels()))
                 if mixer.get_num_channels() == 0:
-                    print('qutting mixer')
+                    print('Qutting mixer')
                     mixer.quit()
-                
+        """
