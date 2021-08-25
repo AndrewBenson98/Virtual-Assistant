@@ -24,6 +24,8 @@ import pyttsx3
 import pyaudio
 import webbrowser
 import urllib
+import time
+import threading
 from pygame import mixer
 from googlesearch import search
 
@@ -55,6 +57,7 @@ def speak(audio):
     engine.runAndWait()
 
 
+
 """
 Converts speech to texts to recieve a command
 """
@@ -65,7 +68,7 @@ def command():
 
     with sr.Microphone() as source:
         # Adjusts the level to recieve voice even in case of noise in surroundings
-        # cmd.adjust_for_ambient_noise(source)
+        cmd.adjust_for_ambient_noise(source)
         print("Listening...")
         audio = cmd.listen(source)
         query = ""
@@ -74,6 +77,7 @@ def command():
             # Turns speech into text
             query = cmd.recognize_google(audio, language="en-us")
             query = query.lower()
+            print('User: '+ query)
         except sr.UnknownValueError:
             pass
 
@@ -95,8 +99,8 @@ def greeting():
 
 
 def googleSearch(query, resultsList):
-
-    for result in search(query, tld="co.in", num=10, stop=5, pause=2):
+#search(query, tld="co.in", num=10, stop=5, pause=2)
+    for result in search(query, num_results=5):
         print(result)
         resultsList.append(result)
     speak("Here are the top five results")
@@ -155,7 +159,53 @@ def openFile(file):
     except:
         speak("File cannot be found")
 
+def setTimer(query):
+    #Parse query to get the time
+    #Query will be in format AmtHours Hours AmtMin Minutes e.g. 1 hour 30 minutes
+    querySplit = query.split(' ')
 
+    #For hours and minutes
+    if len(querySplit) ==4:
+        numHours = querySplit[0]
+        numMinutes = querySplit[2]
+        totalTimeMin = int(numHours)*60 +int(numMinutes)
+        runTimer(totalTimeMin)
+    
+    #For either hours only or minutes only    
+    elif len(querySplit)==2:
+        #Hours
+        if querySplit[1]=='hour' or querySplit[1]=='hours':
+            #Set timer for x hours
+            if querySplit[0] =='one':
+                totalTimeMin = 1*60
+            else:
+                totalTimeMin = int(querySplit[0])*60
+            print(totalTimeMin)
+            runTimer(totalTimeMin)
+            
+        #Minutes    
+        elif querySplit[1] == 'minute' or  querySplit[1] == 'minutes':
+            #Set timer for x minutes
+            if querySplit[0] =='one':
+                totalTimeMin = 1
+            else:
+                totalTimeMin = int(querySplit[0])
+            print(totalTimeMin)
+            runTimer(totalTimeMin)
+            
+    print('Your timer is done')
+    playMusic("random")
+    
+    
+
+def runTimer(timeInMinutes):
+    #speak('Setting timer for '+str(timeInMinutes)+ ' minutes')
+    print('Setting timer for '+str(timeInMinutes)+ ' minutes')
+    mins =0
+    while mins!= timeInMinutes:
+        time.sleep(60)
+        mins+=1
+    
 
 
 speak(name + " here.")
@@ -220,12 +270,19 @@ if __name__ == "__main__":
             if "sheesh" in query or "can i get a" in query:
                 sheesh()
 
-            if "time" in query:
+            if " what time" in query:
                 getTime()
 
             if 'to-do list' in query or 'todo list' in query:
                 openFile("C:\\Users\\andre\\Desktop\\Fall 2020 Todo List.xlsx")
 
+            if 'timer' in query:
+                speak('How long should the timer be?')
+                query=command()
+                #setTimer(query)
+                t = threading.Thread(target=setTimer, args=[query] )
+                t.start()
+            
             # Tell Navi to stop listening and exit
             if (
                 "stop listening" in query
@@ -238,12 +295,12 @@ if __name__ == "__main__":
 
             if mixer.get_init() != None:
                 mixer.music.set_volume(0.30)
-        """
+        
         #Quit mixer if no song is playing        
-        if mixer.get_init() != None:
-                #print('Mixer is active')
-                #print('Active Channels: '+str(mixer.get_num_channels()))
-                if mixer.get_num_channels() == 0:
-                    print('Qutting mixer')
-                    mixer.quit()
-        """
+        # if mixer.get_init() != None:
+        #         #print('Mixer is active')
+        #         #print('Active Channels: '+str(mixer.get_num_channels()))
+        #         if mixer.get_num_channels() == 0:
+        #             print('Qutting mixer')
+        #             mixer.quit()
+        
